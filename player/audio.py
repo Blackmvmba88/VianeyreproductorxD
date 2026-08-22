@@ -55,10 +55,14 @@ class AudioPlayer:
         elif self.paused:
             self.resume()
         else:
+            if self.duration > 0 and self.offset >= self.duration - 0.05:
+                self.offset = 0.0
             self._start_at(self.offset)
 
     def play(self) -> None:
         if self.loaded:
+            if self.duration > 0 and self.offset >= self.duration - 0.05:
+                self.offset = 0.0
             self._start_at(self.offset)
 
     def pause(self) -> None:

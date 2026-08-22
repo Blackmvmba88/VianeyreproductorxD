@@ -25,6 +25,26 @@ def test_invalid_values_are_clamped():
     assert cfg.background_dim == 0.35
 
 
+def test_non_finite_values_fall_back_safely():
+    cfg = VisualConfig(
+        glow=float("nan"),
+        trails=float("inf"),
+        warp=float("-inf"),
+        bass_punch=float("nan"),
+        particles=float("nan"),
+        rainbow_speed=float("inf"),
+        background_dim=float("nan"),
+    ).validated()
+
+    assert cfg.glow == 1.70
+    assert cfg.trails == 10
+    assert cfg.warp == 1.45
+    assert cfg.bass_punch == 1.70
+    assert cfg.particles == 280
+    assert cfg.rainbow_speed == 0.82
+    assert cfg.background_dim == 0.67
+
+
 def test_all_presets_roundtrip_to_valid_config():
     for name in PRESETS:
         cfg = VisualConfig.from_preset(name).validated()

@@ -22,8 +22,22 @@ def test_env_settings_are_clamped(monkeypatch):
 def test_invalid_env_values_fall_back(monkeypatch):
     monkeypatch.setenv("VIANEY_GLOW", "wat")
     monkeypatch.setenv("VIANEY_FPS", "nope")
+    monkeypatch.setenv("VIANEY_STAR_RAIN", "maybe")
 
     cfg = load_settings()
 
     assert cfg.glow == 1.70
+    assert cfg.target_fps == 30
+    assert cfg.star_rain is True
+
+
+def test_non_finite_env_values_fall_back(monkeypatch):
+    monkeypatch.setenv("VIANEY_GLOW", "nan")
+    monkeypatch.setenv("VIANEY_WARP", "inf")
+    monkeypatch.setenv("VIANEY_FPS", "-inf")
+
+    cfg = load_settings()
+
+    assert cfg.glow == 1.70
+    assert cfg.warp == 1.45
     assert cfg.target_fps == 30

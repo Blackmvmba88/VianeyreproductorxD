@@ -1,9 +1,18 @@
 from __future__ import annotations
 
+import math
 import time
 from pathlib import Path
 
 import pygame
+
+
+def _finite(value: float, fallback: float = 0.0) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return fallback
+    return number if math.isfinite(number) else fallback
 
 
 class AudioPlayer:
@@ -26,13 +35,16 @@ class AudioPlayer:
 
     def load(self, path: str | Path, duration: float) -> None:
         self.stop()
-        self.path = Path(path)
-        self.duration = max(0.0, float(duration))
-        pygame.mixer.music.load(str(self.path))
+        candidate = Path(path)
+        safe_duration = max(0.0, _finite(duration, 0.0))
+        pygame.mixer.music.load(str(candidate))
+        self.path = candidate
+        self.duration = safe_duration
         self.offset = 0.0
 
     def _start_at(self, seconds: float) -> None:
-        target = max(0.0, min(float(seconds), self.duration or float(seconds)))
+        raw = _finite(seconds, 0.0)
+        target = max(0.0, min(raw, self.duration or raw))
         try:
             pygame.mixer.music.play(loops=0, start=target)
         except pygame.error:
@@ -89,14 +101,14 @@ class AudioPlayer:
     def seek(self, seconds: float) -> None:
         if not self.loaded:
             return
-        target = max(0.0, min(float(seconds), self.duration))
+        target = max(0.0, min(_finite(seconds, self.offset), self.duration))
         was_paused = self.paused
         self._start_at(target)
         if was_paused:
             self.pause()
 
     def set_volume(self, value: float) -> None:
-        self.volume = max(0.0, min(float(value), 1.0))
+        self.volume = max(0.0, min(_finite(value, self.volume), 1.0))
         pygame.mixer.music.set_volume(self.volume)
 
     @property

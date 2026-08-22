@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 import os
 from pathlib import Path
 
@@ -15,7 +16,12 @@ def _env_bool(name: str, default: bool) -> bool:
     raw = os.getenv(name)
     if raw is None:
         return default
-    return raw.strip().lower() in {"1", "true", "yes", "on", "y"}
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "on", "y"}:
+        return True
+    if value in {"0", "false", "no", "off", "n"}:
+        return False
+    return default
 
 
 def _env_float(name: str, default: float, low: float, high: float) -> float:
@@ -23,13 +29,16 @@ def _env_float(name: str, default: float, low: float, high: float) -> float:
         value = float(os.getenv(name, str(default)))
     except (TypeError, ValueError):
         value = default
+    if not math.isfinite(value):
+        value = default
     return max(low, min(value, high))
 
 
 def _env_int(name: str, default: int, low: int, high: int) -> int:
     try:
-        value = int(float(os.getenv(name, str(default))))
-    except (TypeError, ValueError):
+        raw = float(os.getenv(name, str(default)))
+        value = int(raw) if math.isfinite(raw) else default
+    except (TypeError, ValueError, OverflowError):
         value = default
     return max(low, min(value, high))
 

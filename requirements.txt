@@ -4,3 +4,5 @@ pygame>=2.5,<3
 librosa>=0.10.2,<1
 soundfile>=0.12,<1
 scipy>=1.11,<2
+python-dotenv>=1.0,<2
+pytest>=8,<9

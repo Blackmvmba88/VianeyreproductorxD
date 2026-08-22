@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+from matplotlib import colormaps
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
@@ -52,7 +53,7 @@ class RainbowVisualizer:
         )
 
         hue = (state.centroid * 0.72 + state.mid * 0.18 + seconds * 0.025) % 1.0
-        color = self.figure.get_cmap("rainbow")(hue)
+        color = colormaps["rainbow"](hue)
 
         main_width = 1.7 + state.bass * 4.4
         self.line.set_ydata(y)
